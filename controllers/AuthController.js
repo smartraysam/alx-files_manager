@@ -15,10 +15,15 @@ class AuthController {
       }
 
       const credentialsBase64 = authHeader.slice('Basic '.length);
-      const credentials = Buffer.from(credentialsBase64, 'base64').toString('utf-8');
+      const credentials = Buffer.from(credentialsBase64, 'base64').toString(
+        'utf-8'
+      );
       const [email, password] = credentials.split(':');
 
-      const user = await dbClient.client.db().collection('users').findOne({ email, password: sha1(password) });
+      const user = await dbClient.client
+        .db()
+        .collection('users')
+        .findOne({ email, password: sha1(password) });
       if (!user) {
         res.status(401).json({ error: 'Unauthorized' });
         return;
@@ -30,7 +35,7 @@ class AuthController {
       const expirationTimeInSeconds = 86400;
       await redisClient.set(key, user._id.toString(), expirationTimeInSeconds);
 
-      res.status(200).json({ 'token': token });
+      res.status(200).json({ token: token });
     } catch (error) {
       console.error('Error in getConnect:', error);
       res.status(500).json({ error: 'Internal Server Error' });

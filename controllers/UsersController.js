@@ -30,9 +30,10 @@ class UsersController {
       res.status(400).json({ error: 'Already exist' });
       return;
     }
-    const insertData = await usersCollection.insertOne(
-      { email, password: sha1(password) },
-    );
+    const insertData = await usersCollection.insertOne({
+      email,
+      password: sha1(password),
+    });
     const userId = insertData.insertedId.toString();
 
     userQueue.add({ userId });
@@ -56,7 +57,10 @@ class UsersController {
         return;
       }
 
-      const user = await dbClient.client.db().collection('users').findOne({ _id: ObjectId(userId) });
+      const user = await dbClient.client
+        .db()
+        .collection('users')
+        .findOne({ _id: ObjectId(userId) });
 
       if (!user) {
         res.status(401).json({ error: 'Unauthorized' });
