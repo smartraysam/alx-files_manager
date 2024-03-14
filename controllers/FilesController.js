@@ -19,7 +19,9 @@ class FilesController {
         });
       }
 
-      const { name, type, parentId, isPublic, data } = req.body;
+      const {
+        name, type, parentId, isPublic, data,
+      } = req.body;
 
       if (!name) {
         return res.status(400).send({
@@ -216,10 +218,7 @@ class FilesController {
       const pageSize = 20;
 
       const files = await FilesController.getFilesByParentId(
-        user._id.toString(),
-        parentId,
-        page,
-        pageSize
+        user._id.toString(), parentId, page, pageSize,
       );
 
       return res.status(200).send(files);
@@ -236,11 +235,7 @@ class FilesController {
       const filesCollection = dbClient.client.db().collection('files');
       const skip = page * pageSize;
       const query = { userId, parentId: parentId === '0' ? 0 : parentId };
-      const files = await filesCollection
-        .find(query)
-        .skip(skip)
-        .limit(pageSize)
-        .toArray();
+      const files = await filesCollection.find(query).skip(skip).limit(pageSize).toArray();
 
       const mappedFiles = files.map((file) => {
         const { _id, localPath, ...rest } = file;
@@ -280,10 +275,7 @@ class FilesController {
         });
       }
 
-      const updatedFile = await FilesController.updateFilePublishStatus(
-        fileId,
-        true
-      );
+      const updatedFile = await FilesController.updateFilePublishStatus(fileId, true);
 
       return res.status(200).send(updatedFile);
     } catch (error) {
@@ -320,10 +312,7 @@ class FilesController {
         });
       }
 
-      const updatedFile = await FilesController.updateFilePublishStatus(
-        fileId,
-        false
-      );
+      const updatedFile = await FilesController.updateFilePublishStatus(fileId, false);
 
       return res.status(200).send(updatedFile);
     } catch (error) {
@@ -339,7 +328,7 @@ class FilesController {
     const result = await filesCollection.findOneAndUpdate(
       { _id: ObjectId(fileId) },
       { $set: { isPublic } },
-      { returnDocument: 'after' }
+      { returnDocument: 'after' },
     );
 
     const updatedFile = result.value;
@@ -373,10 +362,7 @@ class FilesController {
         });
       }
 
-      if (
-        !file.isPublic &&
-        (!user || file.userId.toString() !== user._id.toString())
-      ) {
+      if (!file.isPublic && (!user || file.userId.toString() !== user._id.toString())) {
         return res.status(404).send({
           error: 'Not found',
         });
